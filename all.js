@@ -118,8 +118,13 @@ function zoomFern(e) {
   if (k < 1 || k > 8){
     k = pk;
   }else{
-    displayOffset.x *= k/pk;
-    displayOffset.y *= k/pk;
+    var raw_offset = $("#fractal").offset();
+    var OriginVector = {x: raw_offset.left+canvas.width/2, y: raw_offset.top+canvas.height};
+    var CursorVector = {x: e.pageX, y: e.pageY};
+    //console.log(OriginVector,CursorVector);
+    displayOffset.x = displayOffset.x * k/pk + (1-k/pk)*(CursorVector.x-OriginVector.x);
+    displayOffset.y = displayOffset.y * k/pk + (1-k/pk)*(CursorVector.y-OriginVector.y);
+    //displayOffset.y *= k/pk;
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     counter = 0;

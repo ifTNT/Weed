@@ -22,8 +22,9 @@ But it grows out of control :D
 
 ### TODO
 * Maybe evolve to a 3D version ?
-* The origin of zooming should be the position of cursor.
+* ~~The origin of zooming should be the position of cursor.~~ Done
 * Faster rendering.
+* Support mobile zoom in/out
 
 ### Author
 > ifTNT @ 2018 in NUK CSIE
