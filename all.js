@@ -127,6 +127,9 @@ function zoomFern(e) {
     //displayOffset.y *= k/pk;
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "16px Console";
+    ctx.fillStyle = "rgba(159, 216, 36,1)";
+    ctx.fillText("x" + k, canvas.width-80, canvas.height-30, 100);
     counter = 0;
   }
 }
@@ -148,7 +151,7 @@ function registPan() {
                  p0 = $(this).data("p0"),
                  p1 = { x: e.pageX, y: e.pageY };
           var cpi = 1;
-          console.log(origin);
+          //console.log(origin);
           displayOffset.x = origin.x + (p1.x - p0.x)/cpi;
           displayOffset.y = origin.y + (p1.y - p0.y)/cpi;
           ctx.fillStyle = "black";
