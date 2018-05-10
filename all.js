@@ -94,11 +94,11 @@ function render(timestamp){
   fps = Math.floor((fps+1/(t0-t1)*1000)/2);
   t1=t0;
   ctx.fillStyle = "black";
-  ctx.fillRect(20, canvas.height-30, 120, 40);
+  ctx.fillRect(15, canvas.height-35, 130, 20);
   ctx.fillRect(canvas.width-90, 30, 70, 30);
   ctx.fillStyle = "rgba(159, 216, 36,1)";
   ctx.font = "10px Console";
-  ctx.fillText("Drew "+counter+" pixels", 20, canvas.height-20, 100);
+  ctx.fillText("Drew "+counter+" pixels "+(Math.floor(counter/totalDots*100)-1)+"%", 20, canvas.height-20, 120);
   //ctx.fillStyle = "hsl(0,0%,80%)";
   ctx.font = "16px Console";
   ctx.fillText(fps+" FPS", canvas.width-80, 50, 100);
