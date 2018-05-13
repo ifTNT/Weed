@@ -1,4 +1,4 @@
- $(document).ready(init);
+$(document).ready(init);
 var T1 = {
   a: 0.86, b: 0.03,
   c: -0.03, d: 0.86,
@@ -57,6 +57,7 @@ function init(){
   canvas.addEventListener("wheel", zoomFern);
   ctx.fillStyle = "black";
   ctx.fillRect(0,0,canvas.width, canvas.height);
+  $(window).resize(reSize);
   registPan();
   render();
 }
@@ -90,7 +91,7 @@ function render(timestamp){
   }
   ctx.closePath();
   ctx.stroke();
-  
+
   fps = Math.floor((fps+1/(t0-t1)*1000)/2);
   t1=t0;
   ctx.fillStyle = "black";
@@ -102,7 +103,7 @@ function render(timestamp){
   //ctx.fillStyle = "hsl(0,0%,80%)";
   ctx.font = "16px Console";
   ctx.fillText(fps+" FPS", canvas.width-80, 50, 100);
-  
+
   requestAnimationFrame(render);
 }
 
@@ -147,7 +148,7 @@ function registPan() {
     })
     .on("mousemove", function(e){
         if(dragging){
-          var origin = $(this).data("offset"), 
+          var origin = $(this).data("offset"),
                  p0 = $(this).data("p0"),
                  p1 = { x: e.pageX, y: e.pageY };
           var cpi = 1;
@@ -162,4 +163,12 @@ function registPan() {
   $(document).on("mouseup", function(e) {
       dragging = false;
     });
+}
+
+function reSize(){
+    canvas.height = window.innerHeight-40;
+    canvas.width = window.innerWidth-40;
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    counter = 0;
 }
