@@ -72,15 +72,18 @@ function render(timestamp){
   var scale = Math.floor(canvas.height/10.5)*k;
   var totalDots = scale*scale*110;
   var drawSpeed = totalDots/55;
+  ctx.save();
+  ctx.translate(canvas.width/2, canvas.height);
+
   ctx.beginPath();
   var x,y;
   if(counter<=totalDots){
     for(var i=0; i<drawSpeed; i++){
-      x = canvas.width/2+_x*scale + displayOffset.x;
-      y = canvas.height-_y*scale + displayOffset.y;
-      if(x>=0 && x<= canvas.width && y>=0 && y<= canvas.height){
-        ctx.moveTo(x,y);
-        ctx.lineTo(x+0.1,y);
+      x = _x*scale + displayOffset.x;
+      y = -_y*scale + displayOffset.y;
+      if(x>=-canvas.width/2 && x<= canvas.width/2 && y<=0 && y>= -canvas.height){
+       ctx.moveTo(x,y);
+       ctx.lineTo(x+0.1,y);
       }
       //ctx.fillRect(250+x*scale, canvas.height-y*scale, 1, 1);
       var nextLocation = transform(Math.floor(Math.random()*100)+1, _x, _y);
@@ -91,6 +94,7 @@ function render(timestamp){
   }
   ctx.closePath();
   ctx.stroke();
+  ctx.restore();
 
   fps = Math.floor((fps+1/(t0-t1)*1000)/2);
   t1=t0;
