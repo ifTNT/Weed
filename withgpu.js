@@ -22,19 +22,34 @@ var Fractal = function(){
 }
 Fractal.prototype.genIV = function(){
     this.IV = [];
-    var tempIV = [1,2,3];
-    var stack = [];
-    var state = 0;
-    stack.push(state);
-    while(stack.length > 0){
-        stack.pop();
-    }
+    var tempIV = [];
+    var genTemp = function(_p,t){
+        if(t==5) return [_p];
+        var rtVal = [];
+        var p;
+        // T1
+        p = [_p[0]*-0.86+_p[1]*0.03,  _p[0]*-0.03+_p[1]*0.86+1.5,  1];
+        rtVal = rtVal.concat(genTemp(p,t+1));
+        // T2
+        p = [_p[0]*0.2+_p[1]*-0.25,  _p[0]*0.25+_p[1]*0.26+0.45,  1];
+        rtVal = rtVal.concat(genTemp(p,t+1));
+        //T3
+        p = [_p[0]*-0.15+_p[1]*0.27,  _p[0]*0.25+_p[1]*0.26+0.25,  1];
+        rtVal = rtVal.concat(genTemp(p,t+1));
+        //T4
+        p = [0,  _p[1]*0.17,  1];
+        rtVal = rtVal.concat(genTemp(p,t+1));
+        return rtVal;
+    };
+    tempIV = genTemp([0,0,1],0);
     for(var i=0; i<1024; i++){
-        this.IV.push(tempIV);
+        for(var j=0; j<1024; j++){
+            this.IV.push(tempIV[j]);
+        }
     }
 }
 Fractal.prototype.genPoints = function(){
-
+    return this.IV;
 }
 
 
@@ -43,9 +58,18 @@ Fractal.prototype.genPoints = function(){
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 const fractal = new Fractal;
+var points = fractal.genPoints();
 
 function render(t){
-
+    ctx.strokeStyle = "white";
+    ctx.beginPath();
+    var scale = 50;
+    for(var i of points){
+        ctx.moveTo(i[0]*scale+250, 500-i[1]*scale);
+        ctx.lineTo(i[0]*scale+0.1+250, 500-i[1]*scale);
+    }
+    ctx.closePath();
+    ctx.stroke();
     requestAnimationFrame(render);
 }
 
