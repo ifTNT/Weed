@@ -1,22 +1,28 @@
 var Fractal = function(){
+    this.transforms = [
+        [[-0.86,0.03,0],[-0.03,0.86,1.5],[0,0,1]], //T1
+        [[0.2,-0.25,0],[0.25,0.26,0.45],[0,0,1]],  //T0
+        [[-0.15,0.27,0],[0.25,0.26,0.45],[0,0,1]], //T3
+        [[0,0,0],[0,0.17,0],[0,0,1]]               //T4
+    ];
     this.gpu = new GPU();
-    this.iterPoints = this.gpu.createKernel(function(p){
-        var T;
-        if((this.theread.x/1024) <= 850){
-            T = [[-0.86,0.03,0],[-0.03,0.86,1.5],[0,0,1]];
-        }else if((this.theread.x/1024) <= 932){
-            T = [[0.2,-0.25,0],[0.25,0.26,0.45],[0,0,1]];
-        }else if((this.theread.x/1024) <= 1014){
-            T = [[-0.15,0.27,0],[0.25,0.26,0.45],[0,0,1]];
+    this.iterPoints = this.gpu.createKernel(function(p,t){
+        var T = 0;
+        if((this.thread.y/1024) <= 850){
+            T = 0;
+        }else if((this.thread.y/1024) <= 932){
+            T = 1;
+        }else if((this.thread.y/1024) <= 1014){
+            T = 2;
         }else{
-            T = [[0,0,0],[0,0.17,0],[0,0,1]];
+            T = 3;
         }
-        var sum=0;
+        var sum = 0;
         for(var i=0; i<3; i++){
-            sum += T[this.thread.y][i] * p [i][this.thread.x];
+            sum += p[this.thread.y][i] * t[T][this.thread.x][i];
         }
         return sum;
-    }).setOutput([1024*1024,3]);
+    }).setOutput([3,1024*1024]);
     this.genIV();
     console.log(this.IV);
 }
@@ -49,7 +55,7 @@ Fractal.prototype.genIV = function(){
     }
 }
 Fractal.prototype.genPoints = function(){
-    return this.IV;
+    return this.iterPoints(this.IV, this.transforms);
 }
 
 
@@ -61,6 +67,16 @@ const fractal = new Fractal;
 var points = fractal.genPoints();
 
 function render(t){
+    
+    requestAnimationFrame(render);
+}
+
+function init() {
+    canvas.width = 500;
+    canvas.height = 500;
+	ctx.fillStyle = "black";
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    $("body")[0].appendChild(canvas);
     ctx.strokeStyle = "white";
     ctx.beginPath();
     var scale = 50;
@@ -70,15 +86,7 @@ function render(t){
     }
     ctx.closePath();
     ctx.stroke();
-    requestAnimationFrame(render);
-}
-
-function init() {
-    canvas.width = 500;
-    canvas.height = 500;
-	ctx.fillStyle = "black";
-    ctx.fillRect(0,0,canvas.width, canvas.height);
-	$("body")[0].appendChild(canvas);
+    console.log(points);
     render(0);
 }
 
