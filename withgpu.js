@@ -1,20 +1,19 @@
 var Fractal = function(){
-    console.log("Strat " + window.performance.now());
     this.transforms = [
         [[-0.86,0.03,0],[-0.03,0.86,1.5],[0,0,1]], //T1
         [[0.2,-0.25,0],[0.25,0.26,0.45],[0,0,1]],  //T0
         [[-0.15,0.27,0],[0.25,0.26,0.45],[0,0,1]], //T3
         [[0,0,0],[0,0.17,0],[0,0,1]]               //T4
     ];
-    this.workLength = 9; // Actually length of work: 4^workLength
+    this.workLength = 10; // Actually length of work: 4^workLength
     const gpu = new GPU();
-    this.iterPoints = gpu.createKernel(function(p,t,workLength){
-        var T = 0;
-        if((this.thread.y/workLength) <= 0.83){
+    this.iterPoints = gpu.createKernel(function(p, t){
+        var T = 1;
+        if((this.thread.y/this.constants.workLength) <= 0.83){
             T = 0;
-        }else if((this.thread.y/workLength) <= 0.91){
+        }else if((this.thread.y/this.constants.workLength) <= 0.91){
             T = 1;
-        }else if((this.thread.y/workLength) <= 0.99){
+        }else if((this.thread.y/this.constants.workLength) <= 0.99){
             T = 2;
         }else{
             T = 3;
@@ -24,11 +23,20 @@ var Fractal = function(){
             sum += p[this.thread.y][i] * t[T][this.thread.x][i];
         }
         return sum;
-    }).setOutput([3,Math.pow(4,this.workLength)]);
+    },{
+        constants: {
+            workLength: Math.pow(4,this.workLength),
+        },
+        output: [3,Math.pow(4,this.workLength)],
+        outputToTexture: true,
+        debug: false
+    });
     this.genIV();
-    console.log(this.IV);
+    //console.log(this.IV);
 }
 Fractal.prototype.genIV = function(){
+    console.log("Stratd generate initial vector(CPU)");
+    this.t0 = window.performance.now();
     this.IV = []; //Initial vector (A 3 by (4^workLength) matrix actually)
     //var tempIV = [];
     var genTemp = function(_p,t,workLength){
@@ -55,14 +63,17 @@ Fractal.prototype.genIV = function(){
             this.IV.push(tempIV[j]);
         }
     }*/
-    console.log("IV generated " + window.performance.now());
+    console.log("IV generated " + (window.performance.now()-this.t0) + " ms");
 }
 Fractal.prototype.genPoints = function(){
-    var rtVal = this.iterPoints(this.IV, this.transforms, Math.pow(4,this.workLength));
-    console.log("Transformed " + window.performance.now());
+    console.log("Stratd transform(GPU)");
+    this.t0 = window.performance.now();
+    var rtVal = this.iterPoints(this.IV, this.transforms);
+    console.log(rtVal);
+    console.log("Transformed " + (window.performance.now()-this.t0) + " ms");
+    this.t0 = undefined;
     return rtVal;
 }
-
 
 //=============Main start=============
 
